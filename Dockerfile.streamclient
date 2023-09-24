@@ -1,0 +1,7 @@
+FROM streamconnection as builder
+COPY ./server /app/server
+COPY ./proto /app/proto
+WORKDIR /app
+RUN protoc --grpc_out=./proto --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` ./proto/streamconnection.proto
+RUN protoc --cpp_out=./proto ./proto/streamconnection.proto
+
