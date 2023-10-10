@@ -1,7 +1,17 @@
 FROM streamconnection as builder
-COPY ./server /app/server
-COPY ./proto /app/proto
-WORKDIR /app
-RUN protoc --grpc_out=./proto --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` ./proto/streamconnection.proto
-RUN protoc --cpp_out=./proto ./proto/streamconnection.proto
+COPY ./stream-connection /app/stream-connection
 
+WORKDIR /app/stream-connection
+RUN protoc --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` ./proto/streamconnection.proto
+RUN protoc --cpp_out=. ./proto/streamconnection.proto
+
+WORKDIR /app/stream-connection/server
+RUN cmake -S . -B bin
+RUN cmake --build bin
+
+FROM ubuntu:20.04 AS prod
+COPY --from=builder /app/stream-connection/server/bin /app/bin
+COPY --from=builder /usr/local/lib /usr/local/lib
+COPY --from=builder /usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu
+
+CMD ["./app/bin/server"]
