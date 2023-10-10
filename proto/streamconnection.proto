@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package streamconnection;
 
-service streamconnection {
+service StreamConnection {
   rpc GetValues (stream Request) returns (stream Response) {}
 }
 
