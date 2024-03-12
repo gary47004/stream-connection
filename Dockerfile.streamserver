@@ -14,4 +14,4 @@ COPY --from=builder /app/stream-connection/server/bin /app/bin
 COPY --from=builder /usr/local/lib /usr/local/lib
 COPY --from=builder /usr/lib/aarch64-linux-gnu /usr/lib/aarch64-linux-gnu
 
-CMD ["./app/bin/server"]
+CMD ["./app/bin/server", "default_name"]
