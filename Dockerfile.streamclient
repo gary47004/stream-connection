@@ -11,6 +11,7 @@ RUN cmake --build bin
 
 FROM ubuntu:20.04 AS prod
 COPY --from=builder /app/stream-connection/client/bin /app/bin
+COPY --from=builder /app/stream-connection/tls.crt /app/bin/tls.crt
 COPY --from=builder /usr/local/lib /usr/local/lib
 COPY --from=builder /usr/lib/aarch64-linux-gnu /usr/lib/aarch64-linux-gnu
 

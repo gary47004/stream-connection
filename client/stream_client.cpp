@@ -4,13 +4,26 @@
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
 
+#include <fstream>
 #include <iostream>
 #include <memory>
+#include <string>
 #include <thread>
 #include <vector>
 
 #include "proto/streamconnection.grpc.pb.h"
 #include "proto/streamconnection.pb.h"
+
+constexpr char kRootCertFilePath[] = "/app/bin/tls.crt";
+
+std::string ReadFile(const char* file_path) {
+  std::fstream input_file(file_path);
+  std::string content = "";
+  content.assign(std::istreambuf_iterator<char>(input_file),
+                 std::istreambuf_iterator<char>());
+  input_file.close();
+  return content;
+}
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -65,9 +78,16 @@ class Client {
   std::unique_ptr<StreamConnection::Stub> stub_;
 };
 
-int main() {
-  Client client(grpc::CreateChannel("localhost:50051",
-                                    grpc::InsecureChannelCredentials()));
+int main(int argc, char* argv[]) {
+  if (argc != 2) {
+    std::cout << "One and only argument [server address:port] is needed."
+              << std::endl;
+    return 0;
+  }
+  std::string server_addr_port = argv[1];
+  Client client(grpc::CreateChannel(
+      server_addr_port, grpc::SslCredentials(grpc::SslCredentialsOptions{
+                            .pem_root_certs = ReadFile(kRootCertFilePath)})));
   client.GetValues();
   return 0;
 }
