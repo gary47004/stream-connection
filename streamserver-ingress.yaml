@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: grpc-test
+  annotations:
+    linkerd.io/inject: enabled
+--- 
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: streamserver-deploy
+  namespace: grpc-test
+  labels:
+    app: streamserver-app
+spec:
+  selector:
+    matchLabels:
+      app: streamserver-app
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: streamserver-app
+    spec:
+      containers:
+        - name: streamserver-container
+          image: localhost:5000/streamserver:20240316
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 50051
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: streamserver-svc
+  namespace: grpc-test
+spec:
+  selector:
+    app: streamserver-app
+  type: ClusterIP
+  ports:
+    - port: 50051
+      targetPort: 50051
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: streamserver-ingress
+  namespace: grpc-test
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+    nginx.ingress.kubernetes.io/grpc-backend: "true"
+spec:
+  tls:
+    - hosts: 
+      - grpctest.gary.com
+      secretName: grpc-test-secret
+  rules:
+    - host: grpctest.gary.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: streamserver-svc
+                port:
+                  number: 50051
+---
