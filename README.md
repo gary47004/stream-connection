@@ -17,7 +17,7 @@ Then, modify `/etc/hosts` for DNS setting.
 ```
 docker build -f Dockerfile.streamconnection -t streamconnection .
 docker build -f Dockerfile.streamserver -t localhost:5000/streamserver .
-docekr push localhost:5000/streamserver
+docker push localhost:5000/streamserver
 kubectl apply -f streamserver-ingress-tls.yaml
 docker build -f Dockerfile.streamclient -t streamclient .
 docker run --rm --network=host streamclient /app/bin/client grpctest.gary.com:443
