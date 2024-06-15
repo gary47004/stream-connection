@@ -46,15 +46,9 @@ class StreamConnectionImpl final : public StreamConnection::Service {
 };
 
 int main(int argc, char* argv[]) {
-  if (argc != 2) {
-    std::cout << "One and only argument [server name] is needed." << std::endl;
-    return 0;
-  }
-  std::string server_name = argv[1];
   int count = 0;
-  auto generate_resp_msg = [&count, &server_name]() -> std::string {
-    return "Server name: " + server_name +
-           "\nMessage count: " + std::to_string(++count);
+  auto generate_resp_msg = [&count]() -> std::string {
+    return "Message count: " + std::to_string(++count);
   };
 
   std::string server_address("0.0.0.0:50051");
