@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: streamserver-container
-          image: localhost:5000/streamserver:20240316
+          image: localhost:5000/streamserver:latest
           imagePullPolicy: Never
           ports:
             - containerPort: 50051
